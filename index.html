@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A sanitized architecture case study for an AI-assisted kitchen operations platform, presented by backend and AI integration developer Eduardo Arce Mukul.">
+  <meta name="theme-color" content="#081928">
+  <title>AI-Assisted Kitchen Operations | Eduardo Arce Mukul</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #edf8fb;
+      --muted: #a9bdc8;
+      --page: #071421;
+      --surface: #0c2030;
+      --surface-2: #102a3d;
+      --line: rgba(151, 196, 211, 0.18);
+      --cyan: #42dfd0;
+      --blue: #55bce3;
+      --violet: #9c7cff;
+      --white: #ffffff;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(circle at 84% 8%, rgba(38, 181, 177, 0.16), transparent 25rem),
+        radial-gradient(circle at 15% 38%, rgba(85, 188, 227, 0.08), transparent 30rem),
+        var(--page);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    a { color: inherit; }
+    .shell { width: min(var(--max), calc(100% - 40px)); margin: 0 auto; }
+
+    .site-header {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .identity { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 750; letter-spacing: -0.01em; }
+    .identity-mark { width: 13px; height: 13px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 0 7px rgba(66, 223, 208, 0.1); }
+    .nav { display: flex; align-items: center; gap: 22px; }
+    .nav a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 650; }
+    .nav a:hover, .nav a:focus-visible { color: var(--white); }
+
+    .hero { padding: 92px 0 68px; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr); gap: 68px; align-items: center; }
+    .eyebrow { color: var(--cyan); font-size: 0.78rem; font-weight: 850; letter-spacing: 0.18em; text-transform: uppercase; }
+    h1 { margin: 17px 0 22px; max-width: 800px; font-size: clamp(2.8rem, 7vw, 5.7rem); line-height: 0.98; letter-spacing: -0.055em; }
+    .hero-copy { max-width: 730px; color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.26rem); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 0 19px; border: 1px solid var(--line); border-radius: 9px; text-decoration: none; font-size: 0.92rem; font-weight: 800; transition: transform 160ms ease, border-color 160ms ease, background 160ms ease; }
+    .button:hover, .button:focus-visible { transform: translateY(-2px); border-color: rgba(66, 223, 208, 0.66); }
+    .button-primary { background: var(--cyan); color: #06201f; border-color: var(--cyan); }
+    .button-secondary { background: rgba(255,255,255,0.035); }
+
+    .system-map { position: relative; min-height: 370px; padding: 30px; border: 1px solid var(--line); border-radius: 24px; background: linear-gradient(145deg, rgba(18, 50, 69, 0.88), rgba(8, 26, 40, 0.92)); overflow: hidden; box-shadow: 0 28px 90px rgba(0, 0, 0, 0.28); }
+    .system-map::before { content: ""; position: absolute; inset: 0; opacity: 0.32; background-image: linear-gradient(rgba(130, 184, 200, 0.11) 1px, transparent 1px), linear-gradient(90deg, rgba(130, 184, 200, 0.11) 1px, transparent 1px); background-size: 34px 34px; }
+    .map-title { position: relative; color: #bdd1da; font: 700 0.74rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.12em; text-transform: uppercase; }
+    .map-flow { position: relative; display: grid; gap: 19px; margin-top: 28px; }
+    .map-node { position: relative; width: 78%; padding: 14px 16px; border: 1px solid rgba(66, 223, 208, 0.45); border-radius: 10px; background: rgba(9, 34, 46, 0.94); }
+    .map-node:nth-child(2) { margin-left: 11%; border-color: rgba(85, 188, 227, 0.52); }
+    .map-node:nth-child(3) { margin-left: 22%; border-color: rgba(156, 124, 255, 0.56); }
+    .map-node:not(:last-child)::after { content: ""; position: absolute; width: 1px; height: 20px; left: 28px; bottom: -20px; background: linear-gradient(var(--cyan), transparent); }
+    .map-node strong { display: block; font: 750 0.86rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .map-node span { display: block; margin-top: 4px; color: var(--muted); font-size: 0.76rem; }
+    .map-status { position: absolute; right: 26px; bottom: 22px; display: flex; align-items: center; gap: 8px; color: #b8d0da; font: 700 0.72rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .map-status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 12px rgba(66, 223, 208, 0.8); }
+
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--line); }
+    .metric { padding: 32px 24px; }
+    .metric + .metric { border-left: 1px solid var(--line); }
+    .metric strong { display: block; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1; letter-spacing: -0.04em; }
+    .metric span { display: block; max-width: 240px; margin-top: 9px; color: var(--muted); font-size: 0.91rem; line-height: 1.45; }
+
+    section { padding: 84px 0; }
+    .section-head { display: grid; grid-template-columns: 0.55fr 1.45fr; gap: 50px; align-items: start; margin-bottom: 38px; }
+    h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.05; letter-spacing: -0.04em; }
+    .section-intro { margin: 2px 0 0; color: var(--muted); font-size: 1.05rem; }
+
+    .artifact-grid { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 16px; }
+    .artifact { min-height: 260px; padding: 28px; border: 1px solid var(--line); border-radius: 17px; background: rgba(14, 38, 55, 0.76); text-decoration: none; display: flex; flex-direction: column; transition: transform 160ms ease, border-color 160ms ease, background 160ms ease; }
+    .artifact:hover, .artifact:focus-visible { transform: translateY(-4px); border-color: rgba(66, 223, 208, 0.58); background: rgba(17, 47, 66, 0.94); }
+    .artifact-featured { background: linear-gradient(145deg, rgba(24, 68, 81, 0.9), rgba(17, 45, 65, 0.92)); }
+    .artifact-type { color: var(--cyan); font: 800 0.75rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.12em; text-transform: uppercase; }
+    .artifact h3 { margin: auto 0 10px; font-size: 1.45rem; line-height: 1.15; letter-spacing: -0.025em; }
+    .artifact p { margin: 0; color: var(--muted); font-size: 0.91rem; }
+    .artifact-arrow { margin-top: 22px; color: var(--cyan); font-weight: 850; }
+
+    .contribution-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+    .contribution-list { display: grid; gap: 12px; }
+    .contribution { padding: 20px 21px; border-left: 3px solid var(--cyan); background: rgba(14, 38, 55, 0.64); border-radius: 0 10px 10px 0; }
+    .contribution:nth-child(2) { border-left-color: var(--blue); }
+    .contribution:nth-child(3) { border-left-color: var(--violet); }
+    .contribution strong { display: block; font-size: 1rem; }
+    .contribution span { color: var(--muted); font-size: 0.91rem; }
+    .stack-panel { padding: 28px; border: 1px solid var(--line); border-radius: 16px; background: rgba(8, 27, 41, 0.72); }
+    .stack-panel h3 { margin: 0 0 19px; font-size: 1.05rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 9px; }
+    .chip { padding: 8px 11px; border: 1px solid var(--line); border-radius: 7px; color: #d8e9ef; background: rgba(255,255,255,0.025); font: 700 0.81rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .disclosure { margin-top: 22px; padding: 18px; border-radius: 10px; background: rgba(156, 124, 255, 0.08); color: #c7d7df; font-size: 0.88rem; }
+    .disclosure strong { color: #cbbcff; }
+
+    footer { padding: 32px 0 44px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.86rem; }
+    .footer-layout { display: flex; justify-content: space-between; gap: 24px; }
+    footer a { color: var(--ink); text-decoration: none; }
+
+    :focus-visible { outline: 3px solid rgba(66, 223, 208, 0.62); outline-offset: 4px; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 62px; }
+      .system-map { min-height: 330px; }
+      .artifact-grid { grid-template-columns: 1fr 1fr; }
+      .artifact-featured { grid-column: 1 / -1; }
+      .section-head, .contribution-layout { grid-template-columns: 1fr; gap: 24px; }
+    }
+
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 28px, var(--max)); }
+      .site-header { min-height: 68px; }
+      .nav a:first-child { display: none; }
+      .hero { padding: 48px 0 50px; gap: 40px; }
+      h1 { font-size: clamp(2.65rem, 14vw, 4.2rem); }
+      .actions { flex-direction: column; }
+      .button { width: 100%; }
+      .metrics { grid-template-columns: 1fr; }
+      .metric { padding-inline: 0; }
+      .metric + .metric { border-left: 0; border-top: 1px solid var(--line); }
+      section { padding: 62px 0; }
+      .artifact-grid { grid-template-columns: 1fr; }
+      .artifact-featured { grid-column: auto; }
+      .artifact { min-height: 220px; }
+      .footer-layout { flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell site-header">
+    <a class="identity" href="#top" aria-label="Back to top"><span class="identity-mark"></span><span>Eduardo Arce Mukul</span></a>
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="#case-study">Case study</a>
+      <a href="https://github.com/Adudu02">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <div class="shell hero">
+      <div>
+        <div class="eyebrow">Sanitized architecture portfolio</div>
+        <h1>AI-assisted kitchen operations</h1>
+        <p class="hero-copy">A conversational ordering platform connecting customer messaging to structured domain actions, persistent kitchen workflows, live operational visibility, and thermal printing.</p>
+        <div class="actions">
+          <a class="button button-primary" href="AI-Assisted-Kitchen-Operations-Case-Study.pdf">Download case study <span aria-hidden="true">↓</span></a>
+          <a class="button button-secondary" href="Kitchen-Operations-Architecture.html">Explore architecture <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+
+      <div class="system-map" aria-label="Simplified system flow">
+        <div class="map-title">Operational flow</div>
+        <div class="map-flow">
+          <div class="map-node"><strong>Customer input</strong><span>Text or voice message</span></div>
+          <div class="map-node"><strong>Domain action</strong><span>Typed MCP tool execution</span></div>
+          <div class="map-node"><strong>Kitchen output</strong><span>Live dashboard and printed ticket</span></div>
+        </div>
+        <div class="map-status">SANITIZED VIEW</div>
+      </div>
+    </div>
+
+    <div class="shell metrics" aria-label="Project outcomes">
+      <div class="metric"><strong>5</strong><span>client establishments supported concurrently</span></div>
+      <div class="metric"><strong>~40%</strong><span>reduction in manual operational work</span></div>
+      <div class="metric"><strong>4</strong><span>API services integrated into the operating flow</span></div>
+    </div>
+
+    <section id="case-study" class="shell">
+      <div class="section-head">
+        <h2>Review the system</h2>
+        <p class="section-intro">The case study is designed for technical screening: start with the concise PDF, then inspect the interactive diagrams for component boundaries and runtime behavior.</p>
+      </div>
+      <div class="artifact-grid">
+        <a class="artifact artifact-featured" href="AI-Assisted-Kitchen-Operations-Case-Study.pdf">
+          <span class="artifact-type">PDF · 3 pages</span>
+          <h3>Architecture case study</h3>
+          <p>Role, outcomes, system boundaries, engineering decisions, and a representative order flow.</p>
+          <span class="artifact-arrow">Download PDF →</span>
+        </a>
+        <a class="artifact" href="Kitchen-Operations-Architecture.html">
+          <span class="artifact-type">Interactive diagram</span>
+          <h3>System architecture</h3>
+          <p>Services, data boundaries, live operations, and the printer integration.</p>
+          <span class="artifact-arrow">Open diagram ↗</span>
+        </a>
+        <a class="artifact" href="Kitchen-Order-Sequence.html">
+          <span class="artifact-type">Interactive diagram</span>
+          <h3>Order sequence</h3>
+          <p>From customer input through persistence, confirmation, and fulfillment.</p>
+          <span class="artifact-arrow">Open diagram ↗</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="shell">
+      <div class="section-head">
+        <h2>My contribution</h2>
+        <p class="section-intro">Backend and AI-integration work spanning domain APIs, data modeling, conversational interfaces, testing, and the bridge between cloud services and physical kitchen hardware.</p>
+      </div>
+      <div class="contribution-layout">
+        <div class="contribution-list">
+          <div class="contribution"><strong>Structured AI integrations</strong><span>Designed and evolved APIs and MCP tools for menus, orders, client context, and printing.</span></div>
+          <div class="contribution"><strong>Operational data and delivery</strong><span>Improved PostgreSQL and Prisma-backed models, migrations, tests, and deployment workflows.</span></div>
+          <div class="contribution"><strong>Cross-platform fulfillment</strong><span>Implemented voice interactions and an Android/Kotlin bridge for Bluetooth ESC/POS printers.</span></div>
+        </div>
+        <aside class="stack-panel">
+          <h3>Technology</h3>
+          <div class="chips">
+            <span class="chip">TypeScript</span><span class="chip">Node.js</span><span class="chip">REST APIs</span>
+            <span class="chip">MCP</span><span class="chip">PostgreSQL</span><span class="chip">Prisma ORM</span>
+            <span class="chip">WhatsApp</span><span class="chip">Kotlin</span><span class="chip">Android</span>
+            <span class="chip">ESC/POS</span><span class="chip">Docker</span><span class="chip">CI/CD</span>
+          </div>
+          <div class="disclosure"><strong>Confidentiality by design.</strong> This conceptual reconstruction contains no proprietary source code, customer data, credentials, private prompts, exact schemas, or internal identifiers.</div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-layout">
+      <span>© 2026 Eduardo Arce Mukul</span>
+      <span>Backend &amp; AI Integration Developer · Remote from Mexico</span>
+    </div>
+  </footer>
+</body>
+</html>
