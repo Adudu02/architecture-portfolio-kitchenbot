@@ -6,7 +6,7 @@ A sanitized architecture case study for an AI-assisted kitchen operations platfo
 
 Once GitHub Pages is enabled, the site will be available at:
 
-<https://github.com/Adudu02/architecture-portfolio-kitchenbot/>
+<https://adudu02.github.io/architecture-portfolio-kitchenbot/>
 
 ## Included artifacts
 
